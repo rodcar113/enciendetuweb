@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - EnciendeTuWeb</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cart-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin: 40px auto; max-width: 1000px; }
+        .cart-box { background: rgba(19,16,58,0.82); border: var(--border-glass); border-radius: var(--radius-lg); padding: 24px; }
+        .cart-item { display: flex; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px; }
+        .cart-item:last-child { border: none; padding-bottom: 0; margin-bottom: 0; }
+        
+        .item-details h4 { font-size: 1.2rem; margin-bottom: 8px; }
+        .item-details p { color: var(--gray-500); font-size: 0.9rem; }
+        .item-price { text-align: right; }
+        .item-price .strike { text-decoration: line-through; color: var(--gray-500); font-size: 0.9rem; }
+        .item-price .final { font-size: 1.2rem; font-weight: 700; color: var(--cyan); }
+        
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.95rem; }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 24px; border-top: var(--border-glass); font-size: 1.5rem; font-weight: 800; color: var(--cyan); }
+        
+        .domain-search { display: flex; gap: 12px; margin-top: 16px; }
+        .domain-search input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none; }
+        .domain-search input:focus { border-color: var(--cyan); }
+        
+        @media (max-width: 768px) {
+            .cart-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body style="padding-top: 100px;">
+    <div class="bg-blob-1"></div>
+    <div class="bg-blob-2"></div>
+    <div class="grid-bg"></div>
+
+    <nav class="navbar scrolled">
+        <div class="nav-inner">
+            <div class="nav-logo">
+                <a href="index.html"><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> EnciendeTuWeb</a>
+            </div>
+            <div style="color: var(--gray-500); font-size: 0.9rem;">
+                Paso 2 de 3: Carrito
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 8px;">Revisa tu pedido</h1>
+        <p class="hero-desc">Estás a un paso de lanzar tu proyecto web.</p>
+
+        <div class="cart-layout">
+            <!-- Columna Izquierda: Productos -->
+            <div>
+                <div class="cart-box" style="margin-bottom: 24px;">
+                    <div class="cart-item">
+                        <div class="item-details">
+                            <h4 id="cart-plan-name">Plan Emprendedor (Enciende Global)</h4>
+                            <p id="cart-plan-cycle">Ciclo de pago: 1 Año</p>
+                        </div>
+                        <div class="item-price">
+                            <div class="strike" id="cart-strike">$3,588.00</div>
+                            <div class="final" id="cart-final">$699.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-box" id="domain-section">
+                    <div class="item-details">
+                        <h4 id="domain-title"><i class="fa-solid fa-globe" style="color: var(--cyan);"></i> Elige tu dominio gratis</h4>
+                        <p id="domain-msg" style="margin-bottom: 12px;">Busca el nombre perfecto para tu sitio web.</p>
+                        <div class="domain-search" id="domain-search">
+                            <input type="text" id="domain-input" placeholder="Ej. miempresa.com">
+                            <button id="domain-btn" class="btn btn-outline" style="border-radius: 8px; min-width: 100px;">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Resumen -->
+            <div>
+                <div class="cart-box sticky" style="top: 100px;">
+                    <h3 style="margin-bottom: 24px;">Resumen del Pedido</h3>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">$3,588.00</span>
+                    </div>
+                    <div class="summary-row" style="color: var(--success);" id="cart-discount">
+                        <span>Descuento (80%)</span>
+                        <span>-$2,889.00</span>
+                    </div>
+                    
+                    <div class="summary-row" id="summary-domain" style="color: var(--cyan);">
+                        <span><i class="fa-solid fa-gift"></i> Dominio Gratis</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="summary-total" id="cart-total">
+                        <span>Total a pagar</span>
+                        <span>$699.00 <small style="font-size:0.8rem; font-weight:normal; color:var(--gray-500);">MXN</small></span>
+                    </div>
+                    
+                    <a href="checkout.html" class="btn btn-primary" style="width: 100%; margin-top: 24px; padding: 16px;">Continuar a identificación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || '12'; // default to 1 year
+            
+            const domainSection = document.getElementById('domain-box');
+            const summaryFreeDomain = document.getElementById('summary-domain');
+            
+            // Elements to update
+            const planName = document.getElementById('cart-plan-name');
+            const planCycle = document.getElementById('cart-plan-cycle');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const discountEl = document.getElementById('cart-discount');
+            const totalEl = document.getElementById('cart-total');
+            const strikeEl = document.getElementById('cart-strike');
+            const finalEl = document.getElementById('cart-final');
+            
+            const domainTitle = document.getElementById('domain-title');
+            const domainMsg = document.getElementById('domain-msg');
+            const domainInput = document.getElementById('domain-input');
+            const domainBtn = document.getElementById('domain-btn');
+            const domainSearch = document.getElementById('domain-search');
+            
+            let priceData = {
+                '1': { cycle: '1 Mes', normal: 299, final: 299, discount: 0, hasDomain: false, renewal: null },
+                '6': { cycle: '6 Meses', normal: 1794, final: 399, discount: 1395, hasDomain: false, renewal: 1499 },
+                '12': { cycle: '1 Año', normal: 3588, final: 699, discount: 2889, hasDomain: true, renewal: 2699 },
+                '36': { cycle: '3 Años', normal: 10764, final: 1699, discount: 9065, hasDomain: true, renewal: 6999 }
+            };
+            
+            let data = priceData[plan];
+            
+            // Update cart text
+            planCycle.innerText = `Ciclo de pago: ${data.cycle}`;
+            
+            if(data.hasDomain) {
+                // Free domain
+                domainSearch.style.display = 'flex';
+                domainTitle.innerHTML = `<i class="fa-solid fa-globe" style="color: var(--cyan);"></i> Elige tu dominio gratis`;
+                summaryFreeDomain.style.display = 'flex';
+            } else {
+                // No free domain
+                domainSearch.style.display = 'none';
+                domainTitle.innerHTML = `<i class="fa-solid fa-globe" style="color: var(--gray-500);"></i> Dominio no incluido`;
+                domainMsg.innerHTML = `Tu plan de ${data.cycle} no incluye dominio gratis. Necesitarás apuntar tu propio dominio después de la compra.`;
+                summaryFreeDomain.style.display = 'none';
+            }
+            
+            // Formatter
+            const fmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+            
+            subtotalEl.innerText = fmt.format(data.normal);
+            if(data.discount > 0) {
+                strikeEl.innerText = fmt.format(data.normal);
+                strikeEl.style.display = 'block';
+                discountEl.innerHTML = `<span>Descuento</span><span>-${fmt.format(data.discount)}</span>`;
+                discountEl.style.display = 'flex';
+            } else {
+                strikeEl.style.display = 'none';
+                discountEl.style.display = 'none';
+            }
+            
+            finalEl.innerText = fmt.format(data.final);
+            totalEl.innerHTML = `<span>Total a pagar</span><span>${fmt.format(data.final)} <small style="font-size:0.8rem; font-weight:normal; color:var(--gray-500);">MXN</small></span>`;
+            
+            // Remove previous renewal notice if exists
+            let oldRenewal = document.getElementById('renewal-notice');
+            if(oldRenewal) oldRenewal.remove();
+            
+            if(data.renewal) {
+                let renewalMsg = document.createElement('div');
+                renewalMsg.id = 'renewal-notice';
+                renewalMsg.style.cssText = 'text-align: right; color: var(--gray-500); font-size: 0.8rem; margin-top: 8px;';
+                renewalMsg.innerHTML = `Renovación a partir del próximo ciclo: <strong style="color:var(--cyan);">${fmt.format(data.renewal)} MXN</strong>`;
+                totalEl.parentNode.insertBefore(renewalMsg, totalEl.nextSibling);
+            }
+
+            
+            // Domain Checker
+            domainBtn.addEventListener('click', async () => {
+                let d = domainInput.value.trim().toLowerCase();
+                if(!d) return;
+                
+                // Si no tiene extensión, asume .com
+                if(!d.includes('.')) d += '.com';
+                
+                domainBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                domainBtn.disabled = true;
+                
+                try {
+                    // Usar DNS de Cloudflare con tipo SOA para verificar si la zona existe
+                    const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${d}&type=SOA`, {
+                        headers: { 'accept': 'application/dns-json' }
+                    });
+                    const result = await res.json();
+                    
+                    if(result.Status === 3) {
+                        // NXDOMAIN -> Disponible
+                        domainMsg.innerHTML = `<span style="color:var(--success)"><i class="fa-solid fa-check-circle"></i> ¡Felicidades! <strong>${d}</strong> está disponible y se añadirá gratis a tu paquete.</span>`;
+                        domainInput.style.borderColor = 'var(--success)';
+                        summaryFreeDomain.innerHTML = `<span><i class="fa-solid fa-globe"></i> ${d} (1 Año)</span><span>$0.00</span>`;
+                    } else {
+                        // Existe -> No disponible
+                        domainMsg.innerHTML = `<span style="color:#FF4A4A"><i class="fa-solid fa-times-circle"></i> El dominio <strong>${d}</strong> ya está registrado. Intenta con otro nombre.</span>`;
+                        domainInput.style.borderColor = '#FF4A4A';
+                    }
+                } catch(e) {
+                    domainMsg.innerHTML = `<span style="color:var(--gray-500)">Ocurrió un error al verificar el dominio. Por favor intenta de nuevo.</span>`;
+                }
+                
+                domainBtn.innerHTML = 'Buscar';
+                domainBtn.disabled = false;
+            });
+        });
+    </script>
+
+    <footer class="footer" style="padding-top: 60px; padding-bottom: 30px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 80px;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">EnciendeTuWeb</h4>
+                    <ul style="list-style: none; padding: 0; color: var(--gray-500); font-size: 0.9rem; line-height: 2;">
+                        <li><a href="acerca-de.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Acerca de EnciendeTuWeb</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Enlaces Útiles</h4>
+                    <ul style="list-style: none; padding: 0; color: var(--gray-500); font-size: 0.9rem; line-height: 2;">
+                        <li><a href="mapa-del-sitio.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Mapa del Sitio</a></li>
+                        <li><a href="terminos.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Términos del Servicio</a></li>
+                        <li><a href="privacidad.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Central de Privacidad</a></li>
+                        <li><a href="politica-uso.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Política de Uso</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Formas de Pago</h4>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <img src="assets/img/tarjeta.png" alt="Tarjetas" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/paypal.png" alt="PayPal" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/oxxo.png" alt="Oxxo" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/transfer.png" alt="Transferencia" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; color: var(--gray-500); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
+                <p>Los precios no incluyen IVA. © 2026 EnciendeTuWeb. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

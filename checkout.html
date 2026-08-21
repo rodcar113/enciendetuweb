@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - EnciendeTuWeb</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .checkout-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin: 40px auto; max-width: 1100px; }
+        .checkout-step { background: rgba(19,16,58,0.82); border: var(--border-glass); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; transition: var(--transition); }
+        .step-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .step-number { width: 32px; height: 32px; background: var(--cyan); color: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Outfit', sans-serif; }
+        .step-title { font-size: 1.5rem; font-family: 'Outfit', sans-serif; font-weight: 700; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--gray-500); }
+        .form-group input, .form-group select { width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--white); outline: none; transition: border-color 0.2s; font-family: 'Inter', sans-serif; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--cyan); }
+        
+        /* Payment Tabs */
+        .payment-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .pay-tab { flex: 1; min-width: 120px; padding: 16px 8px; text-align: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: var(--transition); color: var(--gray-500); font-size: 0.9rem; }
+        .pay-tab:hover { border-color: rgba(0,200,255,0.5); color: white; }
+        .pay-tab.active { background: rgba(0,200,255,0.1); border-color: var(--cyan); color: var(--cyan); font-weight: 600; }
+        .pay-tab i { display: block; font-size: 1.5rem; margin-bottom: 8px; }
+        
+        .pay-content { display: none; padding: 24px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); }
+        .pay-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .summary-box { background: var(--gradient-brand); border-radius: var(--radius-lg); padding: 24px; position: sticky; top: 100px; box-shadow: var(--shadow-card); }
+        .summary-box::before { content: ''; position: absolute; inset: 1px; background: var(--navy-light); border-radius: calc(var(--radius-lg) - 1px); z-index: -1; }
+        
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.95rem; }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 24px; border-top: var(--border-glass); font-size: 1.5rem; font-weight: 800; color: var(--cyan); }
+
+        @media (max-width: 768px) {
+            .checkout-layout { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body style="padding-top: 100px;">
+    <div class="bg-blob-1"></div>
+    <div class="bg-blob-2"></div>
+    <div class="grid-bg"></div>
+
+    <nav class="navbar scrolled">
+        <div class="nav-inner">
+            <div class="nav-logo">
+                <a href="index.html"><i class="fa-solid fa-bolt" style="color: var(--cyan);"></i> EnciendeTuWeb</a>
+            </div>
+            <div style="color: var(--gray-500); font-size: 0.9rem;">
+                <i class="fa-solid fa-lock" style="color: var(--success);"></i> Pago 100% Seguro
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="checkout-layout">
+            <!-- Izquierda: Formulario -->
+            <div>
+                <!-- Paso 1: Identificación -->
+                <div class="checkout-step" id="step-1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h2 class="step-title">Identificación</h2>
+                    </div>
+                    <p style="color: var(--gray-500); margin-bottom: 24px;">Crea una cuenta para administrar tus servicios.</p>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Correo Electrónico</label>
+                            <input type="email" class="req-step-1" id="email" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="form-group full">
+                            <label>Confirmar Correo Electrónico</label>
+                            <input type="email" class="req-step-1" id="email-conf" placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" class="req-step-1" id="pass" placeholder="Crea una contraseña segura">
+                        </div>
+                        <div class="form-group">
+                            <label>Celular</label>
+                            <input type="tel" class="req-step-1" id="tel" placeholder="(55) 0000 0000">
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 24px;">
+                        <button class="btn btn-primary" onclick="nextStep(2)">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Datos del Cliente -->
+                <div class="checkout-step" id="step-2" style="opacity: 0.5; pointer-events: none;">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2 class="step-title">Datos del Cliente</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre(s)</label>
+                            <input type="text" class="req-step-2" placeholder="Tu nombre">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input type="text" class="req-step-2" placeholder="Tus apellidos">
+                        </div>
+                        <div class="form-group full">
+                            <label>Código Postal</label>
+                            <input type="text" class="req-step-2" placeholder="C.P.">
+                        </div>
+                        <div class="form-group full">
+                            <label>Dirección</label>
+                            <input type="text" class="req-step-2" placeholder="Calle y número">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <input type="text" class="req-step-2" placeholder="Ej. Nuevo León">
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input type="text" class="req-step-2" placeholder="Ej. Monterrey">
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 24px;">
+                        <button class="btn btn-primary" onclick="nextStep(3)">Continuar al Pago <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Paso 3: Pago -->
+                <div class="checkout-step" id="step-3" style="opacity: 0.5; pointer-events: none;">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h2 class="step-title">Método de Pago</h2>
+                    </div>
+                    
+                    <div class="payment-tabs">
+                        <div class="pay-tab active" onclick="switchTab('tarjeta')">
+                            <i class="fa-regular fa-credit-card"></i> Tarjeta
+                        </div>
+                        <div class="pay-tab" onclick="switchTab('paypal')">
+                            <i class="fa-brands fa-paypal"></i> PayPal
+                        </div>
+                        <div class="pay-tab" onclick="switchTab('oxxo')">
+                            <i class="fa-solid fa-store"></i> Efectivo / Oxxo
+                        </div>
+                        <div class="pay-tab" onclick="switchTab('transfer')">
+                            <i class="fa-solid fa-building-columns"></i> Transferencia
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta -->
+                    <div class="pay-content active" id="tab-tarjeta">
+                        <div class="form-group full">
+                            <label>Número de Tarjeta</label>
+                            <input type="text" class="req-step-3-tarjeta" placeholder="0000 0000 0000 0000">
+                        </div>
+                        <div class="form-group full">
+                            <label>Nombre impreso en la tarjeta</label>
+                            <input type="text" class="req-step-3-tarjeta" placeholder="Como aparece en la tarjeta">
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Vencimiento (MM/AA)</label>
+                                <input type="text" class="req-step-3-tarjeta" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="text" class="req-step-3-tarjeta" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PayPal -->
+                    <div class="pay-content" id="tab-paypal" style="text-align: center;">
+                        <i class="fa-brands fa-paypal" style="font-size: 3rem; color: #00457C; margin-bottom: 16px; display: block;"></i>
+                        <p style="margin-bottom: 24px; color: var(--gray-500);">Serás redirigido al sitio seguro de PayPal para completar tu compra.</p>
+                    </div>
+
+                    <!-- Oxxo -->
+                    <div class="pay-content" id="tab-oxxo" style="text-align: center;">
+                        <i class="fa-solid fa-file-invoice-dollar" style="font-size: 3rem; color: #E01837; margin-bottom: 16px; display: block;"></i>
+                        <p style="margin-bottom: 12px; color: white;">Generaremos una boleta de pago.</p>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;">Podrás pagar en cualquier tienda OXXO. Tu servicio se activará cuando el pago se confirme (de 1 a 2 días hábiles).</p>
+                    </div>
+
+                    <!-- Transferencia -->
+                    <div class="pay-content" id="tab-transfer" style="text-align: center;">
+                        <i class="fa-solid fa-money-bill-transfer" style="font-size: 3rem; color: var(--success); margin-bottom: 16px; display: block;"></i>
+                        <p style="margin-bottom: 12px; color: white;">Transferencia Bancaria SPEI</p>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;">Te proporcionaremos los datos de nuestra cuenta bancaria (CLABE) para que realices la transferencia desde tu banca electrónica.</p>
+                    </div>
+
+                    <div style="margin-top: 32px;">
+                        <p style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 16px;">Al hacer clic en finalizar, aceptas nuestros términos y condiciones y políticas de privacidad.</p>
+                        <button class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.2rem; padding: 18px;" onclick="finishPurchase()">Finalizar Compra <i class="fa-solid fa-lock"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derecha: Resumen Sticky -->
+            <div>
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 24px;">Resumen de tu compra</h3>
+                    <div class="summary-row">
+                        <span>Plan Emprendedor (1 Año)</span>
+                        <span>$699.00</span>
+                    </div>
+                    <div class="summary-row" style="color: var(--cyan);">
+                        <span><i class="fa-solid fa-gift"></i> Dominio Gratis</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="summary-row" style="color: var(--cyan);">
+                        <span><i class="fa-solid fa-gift"></i> SSL de por vida</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span>$699.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateFields(selector) {
+            let valid = true;
+            document.querySelectorAll(selector).forEach(input => {
+                if(input.value.trim() === '') {
+                    input.style.borderColor = '#FF4A4A';
+                    valid = false;
+                } else {
+                    input.style.borderColor = 'rgba(255,255,255,0.1)';
+                }
+            });
+            return valid;
+        }
+
+        function nextStep(step) {
+            // Validation before proceeding
+            if(step === 2) {
+                if(!validateFields('.req-step-1')) {
+                    alert('Por favor, llena todos los campos de Identificación para continuar.');
+                    return;
+                }
+                const em1 = document.getElementById('email').value;
+                const em2 = document.getElementById('email-conf').value;
+                if(em1 !== em2) {
+                    alert('Los correos electrónicos no coinciden.');
+                    document.getElementById('email-conf').style.borderColor = '#FF4A4A';
+                    return;
+                }
+            } else if(step === 3) {
+                if(!validateFields('.req-step-2')) {
+                    alert('Por favor, llena todos los campos de Datos del Cliente para continuar.');
+                    return;
+                }
+            }
+
+            const current = document.getElementById(`step-${step-1}`);
+            const next = document.getElementById(`step-${step}`);
+            
+            // Animación visual de completado
+            current.style.opacity = '0.5';
+            current.style.pointerEvents = 'none';
+            current.querySelector('.step-number').innerHTML = '<i class="fa-solid fa-check"></i>';
+            
+            // Activar siguiente paso
+            next.style.opacity = '1';
+            next.style.pointerEvents = 'all';
+            
+            // Scroll suave al siguiente paso
+            next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function switchTab(tabId) {
+            // Quitar clase active de todas las tabs y contenidos
+            document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.pay-content').forEach(c => c.classList.remove('active'));
+            
+            // Agregar clase active al tab clickeado y su contenido
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        function finishPurchase() {
+            // Revisa qué método de pago está activo
+            const activeTab = document.querySelector('.pay-content.active').id;
+            
+            if(activeTab === 'tab-tarjeta') {
+                if(!validateFields('.req-step-3-tarjeta')) {
+                    alert('Por favor completa todos los datos de tu tarjeta de crédito.');
+                    return;
+                }
+            }
+            
+            alert('¡Compra Procesada Exitosamente! Bienvenido a EnciendeTuWeb.');
+        }
+    </script>
+
+    <footer class="footer" style="padding-top: 60px; padding-bottom: 30px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 80px;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">EnciendeTuWeb</h4>
+                    <ul style="list-style: none; padding: 0; color: var(--gray-500); font-size: 0.9rem; line-height: 2;">
+                        <li><a href="acerca-de.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Acerca de EnciendeTuWeb</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Enlaces Útiles</h4>
+                    <ul style="list-style: none; padding: 0; color: var(--gray-500); font-size: 0.9rem; line-height: 2;">
+                        <li><a href="mapa-del-sitio.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Mapa del Sitio</a></li>
+                        <li><a href="terminos.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Términos del Servicio</a></li>
+                        <li><a href="privacidad.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Central de Privacidad</a></li>
+                        <li><a href="politica-uso.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Política de Uso</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Formas de Pago</h4>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <img src="assets/img/tarjeta.png" alt="Tarjetas" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/paypal.png" alt="PayPal" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/oxxo.png" alt="Oxxo" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                        <img src="assets/img/transfer.png" alt="Transferencia" style="height: 30px; border-radius: 4px; opacity: 0.8; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; color: var(--gray-500); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
+                <p>Los precios no incluyen IVA. © 2026 EnciendeTuWeb. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
