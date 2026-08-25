@@ -69,7 +69,7 @@
                     <div class="total">$1,699.00</div>
                     <div style="color: var(--gray-500); font-size: 0.8rem;">Pago inicial por 3 años.<br><span style="color:var(--cyan);">Renueva por $6,999.00</span></div>
                 </div>
-                <input type="radio" name="duration" value="36" style="display:none;">
+                <input type="radio" name="duration" value="trianual" style="display:none;">
             </label>
 
             <!-- 1 Año -->
@@ -86,7 +86,7 @@
                     <div class="total">$699.00</div>
                     <div style="color: var(--gray-500); font-size: 0.8rem;">Pago inicial por 1 año.<br><span style="color:var(--cyan);">Renueva por $2,699.00</span></div>
                 </div>
-                <input type="radio" name="duration" value="12" checked style="display:none;">
+                <input type="radio" name="duration" value="anual" checked style="display:none;">
             </label>
 
             <!-- 6 Meses -->
@@ -102,7 +102,7 @@
                     <div class="total">$399.00</div>
                     <div style="color: var(--gray-500); font-size: 0.8rem;">Pago inicial por 6 meses.<br><span style="color:var(--cyan);">Renueva por $1,499.00</span></div>
                 </div>
-                <input type="radio" name="duration" value="6" style="display:none;">
+                <input type="radio" name="duration" value="semestral" style="display:none;">
             </label>
 
             <!-- 1 Mes -->
@@ -117,7 +117,7 @@
                     <div class="total">$299.00</div>
                     <div style="color: var(--gray-500); font-size: 0.8rem;">Pago mes a mes</div>
                 </div>
-                <input type="radio" name="duration" value="1" style="display:none;">
+                <input type="radio" name="duration" value="mensual" style="display:none;">
             </label>
         </div>
 
@@ -128,19 +128,22 @@
 
     
     <script>
-        function goToCart() {
-            const selected = document.querySelector('input[name="duration"]:checked').value;
-            window.location.href = `carrito.html?plan=${selected}`;
-        }
+    function goToCart() {
+        // Capturamos la palabra del plan seleccionado (ej. "anual")
+        const selected = document.querySelector('input[name="duration"]:checked').value;
+        
+        // ¡Magia! Lo mandamos directo a que MercadoPago le cobre
+        window.location.href = `https://api.enciendetuweb.com/api/pagar?plan=${selected}`;
+    }
 
-        document.querySelectorAll('.duration-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.duration-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                this.querySelector('input').checked = true;
-            });
+    document.querySelectorAll('.duration-card').forEach(card => {
+        card.addEventListener('click', function() {
+            document.querySelectorAll('.duration-card').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
         });
-    </script>
+    });
+	</script>
 
     <footer class="footer" style="padding-top: 60px; padding-bottom: 30px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 80px;">
         <div class="container">
